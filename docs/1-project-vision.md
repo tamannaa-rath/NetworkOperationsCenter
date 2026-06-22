@@ -1,7 +1,5 @@
 ## Problem Statement
 
-Example:
-
 ```
 Modern organizations operate hundreds or thousands of servers, network devices, databases, and applications. Monitoring these systems across multiple tools makes it difficult to detect failures, respond to incidents, and maintain high availability.
 
