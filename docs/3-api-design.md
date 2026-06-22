@@ -23,12 +23,13 @@ The NOC Dashboard API powers the backend services responsible for monitoring net
 
 # 2. Tech Stack
 
-* Java 21
-* Spring Boot 3
-* Spring Security
-* PostgreSQL
-* JWT Authentication
-* Maven
+| Layer          | Technology          |
+| -------------- | ------------------- |
+| Frontend       | React.js            |
+| Backend        | Node.js, Express.js |
+| Database       | PostgreSQL          |
+| Authentication | JWT                 |
+| Architecture   | REST API            |
 
 ---
 
