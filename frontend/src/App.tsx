@@ -1,11 +1,11 @@
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
-
   return (
     <>
-      <div> NOC Dashboard </div> 
+      <DashboardPage />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
