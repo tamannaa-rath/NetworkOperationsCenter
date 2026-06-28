@@ -21,4 +21,12 @@ async function getAllDevices() {
     ];
 }
 
-module.exports = getAllDevices;
+async function getDeviceById(id) {
+    const devices = await getAllDevices();
+    return devices.find(device => device.id === id);
+}
+
+module.exports = {
+    getAllDevices,
+    getDeviceById,
+};
