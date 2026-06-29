@@ -4,5 +4,6 @@ const deviceController = require("../controllers/device.controller");
 
 router.get("/", deviceController.getDevices);
 router.get("/:id", deviceController.getDevice);
+router.post("/", deviceController.postDevices);
 
 module.exports = router;

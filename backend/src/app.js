@@ -2,8 +2,13 @@ const express = require("express");
 
 const app = express();
 
-app.get("/", (req, res) => {
-    res.send("NOC Backend API running");
-})
+const deviceRouter = require("./routes/device.routes");
+
+//middleware
+app.use(express.json());
+
+//routes
+app.use ("/api/devices", deviceRouter);
+
 
 module.exports = app;

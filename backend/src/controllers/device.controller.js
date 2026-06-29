@@ -11,7 +11,14 @@ async function getDevice(req, res) {
     res.json(device);
 }
 
+async function postDevices(req, res){
+    const device = req.body;
+    const newDevice = await deviceService.createNewDevice(device);
+    res.json(newDevice);
+}
+
 module.exports = {
     getDevices,
     getDevice,
+    postDevices,
 };
