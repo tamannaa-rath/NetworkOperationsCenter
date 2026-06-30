@@ -17,8 +17,24 @@ async function postDevices(req, res){
     res.json(newDevice);
 }
 
+async function updateDevice(req, res){
+    const id = Number(req.params.id);
+    const update = req.body;
+    const updatedDevice = await deviceService.updateDevice(id, update);
+    res.json(updatedDevice);
+}
+
+async function deleteDevice(req, res){
+    const id = Number(req.params.id);
+    const result = await deviceService.deleteDevice(id);
+    if(result !== -1) res.send("Device deleted");
+    else res.send("Device not found");
+}
+
 module.exports = {
     getDevices,
     getDevice,
     postDevices,
+    updateDevice,
+    deleteDevice,
 };
