@@ -1,5 +1,6 @@
 const express = require("express");
-const logger = require("./middleware/logger.middleware")
+const logger = require("./middleware/logger.middleware");
+const errorHandler = require("./middleware/error.middleware");
 
 const app = express();
 
@@ -12,5 +13,7 @@ app.use(logger);
 //routes
 app.use ("/api/devices", deviceRouter);
 
+//error handling
+app.use(errorHandler);
 
 module.exports = app;
