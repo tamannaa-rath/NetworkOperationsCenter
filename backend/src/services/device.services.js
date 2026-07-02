@@ -1,36 +1,39 @@
-const devices = require("../data/devices")
+const pool = require("../config/db");
 
 async function getAllDevices() {
-    return devices;
+    const devices = await pool.query("SELECT * FROM devices");
+    return devices.rows;
 }
 
 async function getDeviceById(id) {
-    const devices = await getAllDevices();
-    return devices.find(device => device.id === id);
+    const device = await pool.query("SELECT * FROM devices WHERE id = $1", [id]);
+    return device.rows[0];
 }
 
 async function createNewDevice(device){
-    devices.push(device);
-    return device;
+    const result = await pool.query(
+        "INSERT INTO devices(hostname, ip_address, status) VALUES($1, $2, $3) RETURNING *",
+        [device.hostname, device.ipAddress, device.status]
+    );
+    return result.rows[0];
 }
 
 async function updateDevice(id, update) {
     const device = await getDeviceById(id);
+    if (!device) {
+        return null;
+    }
+    const result = await pool.query(
+        "UPDATE devices SET hostname = $1, ip_address = $2, status = $3 WHERE id = $4 RETURNING *",
+        [update.hostname, update.ipAddress, update.status, id]
+    );
 
-    if(update.hostname != null) 
-        device.hostname = update.hostname;
-    if(update.ipAddress != null) 
-        device.ipAddress = update.ipAddress;
-    if(update.status != null)
-        device.status = update.status;
-
-    return device;
+    return result.rows[0];
 }
 
 async function deleteDevice(id){
-    const index = devices.findIndex(device => device.id === id);
-    if(index >= 0) devices.splice(index, 1);
-    else return -1;
+    const result = await pool.query("DELETE FROM devices WHERE id = $1", [id]);
+    return result.rowCount > 0;
 }
 
 module.exports = {
