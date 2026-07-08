@@ -1,0 +1,16 @@
+const express = require("express");
+const router = express.Router();
+const userController = require("../controllers/user.controller");
+const validate = require("../middleware/validate.middleware");
+const userSchema = require("../schemas/user.schema");
+
+router.get("/", userController.getUsers);
+router.get("/:id", userController.getUser);
+
+router.post("/", validate(userSchema), userController.createUser);
+
+router.put("/:id", validate(userSchema), userController.updateUser);
+
+router.delete("/:id", userController.deleteUser);
+
+module.exports = router;
