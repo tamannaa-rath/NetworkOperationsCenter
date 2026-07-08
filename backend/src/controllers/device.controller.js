@@ -1,4 +1,4 @@
-const deviceService = require ("../services/device.services");
+const deviceService = require ("../services/device.service");
 
 async function getDevices(req, res) {
     const devices = await deviceService.getAllDevices();
