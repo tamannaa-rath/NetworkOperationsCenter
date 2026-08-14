@@ -4,6 +4,7 @@ import AuditLogsPage from "../pages/AuditLogsPage";
 import DashboardPage from "../pages/DashboardPage";
 import DevicesPage from "../pages/DevicesPage";
 import IncidentsPage from "../pages/IncidentsPage";
+import MetricsPage from "../pages/MetricsPage";
 
 export const router = createBrowserRouter([
     {
@@ -26,4 +27,8 @@ export const router = createBrowserRouter([
         path: "/incidents",
         element: <IncidentsPage/>
     },
+    {
+        path: "/metrics",
+        element: <MetricsPage/>
+    }
 ])

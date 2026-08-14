@@ -1040,6 +1040,432 @@ tbody tr:hover {
   font-size: 8px;
 }
 
+/* =========================
+   PAGE HEADER
+========================= */
+
+.page-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 12px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.page-subtitle {
+  margin-top: 3px;
+
+  color: var(--muted);
+  font-size: 11px;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.primary-button,
+.filter-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border: 1px solid var(--border);
+  border-radius: 5px;
+
+  padding: 8px 12px;
+
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.primary-button {
+  background: #168ac0;
+  color: white;
+}
+
+.filter-button {
+  background: var(--panel);
+  color: var(--text);
+}
+
+
+/* =========================
+   DEVICE CONTROLS
+========================= */
+
+.device-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  height: 30px;
+
+  padding: 0 9px;
+
+  border: 1px solid var(--border);
+  border-radius: 5px;
+
+  background: var(--background);
+  color: var(--muted);
+}
+
+.search-box input {
+  width: 150px;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+  color: var(--text);
+
+  font-size: 10px;
+}
+
+.search-box input::placeholder {
+  color: var(--muted);
+}
+
+.device-controls select {
+  height: 30px;
+
+  padding: 0 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 5px;
+
+  background: var(--background);
+  color: var(--text);
+
+  font-size: 10px;
+}
+
+
+/* =========================
+   TABLE
+========================= */
+
+.devices-widget {
+  width: 100%;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  font-size: 10px;
+}
+
+.data-table th {
+  padding: 10px 12px;
+
+  text-align: left;
+
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 500;
+
+  background: rgba(10, 20, 35, 0.35);
+
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+  padding: 11px 12px;
+
+  border-bottom: 1px solid var(--border);
+
+  color: var(--text);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.device-name {
+  font-weight: 600;
+}
+
+
+/* =========================
+   DEVICE STATUS
+========================= */
+
+.device-status {
+  display: inline-block;
+
+  padding: 4px 7px;
+
+  border-radius: 3px;
+
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.device-status.active {
+  color: #9ff5bd;
+  background: rgba(34, 197, 94, 0.16);
+}
+
+.device-status.maintenance {
+  color: #ffe38a;
+  background: rgba(250, 204, 21, 0.16);
+}
+
+.device-status.inactive {
+  color: #cbd5e1;
+  background: rgba(100, 116, 139, 0.2);
+}
+
+/* =========================
+   ALERTS PAGE
+========================= */
+
+.alert-message {
+  font-weight: 500;
+}
+
+.alert-status {
+  display: inline-block;
+
+  padding: 4px 7px;
+
+  border-radius: 3px;
+
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.alert-status.active {
+  color: #ffb4b9;
+  background: rgba(232, 59, 69, 0.16);
+}
+
+.alert-status.acknowledged {
+  color: #a8d5ff;
+  background: rgba(45, 140, 255, 0.16);
+}
+
+
+/* =========================
+   INCIDENTS PAGE
+========================= */
+
+.incident-id {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.incident-title {
+  font-weight: 500;
+}
+
+.incident-status {
+  display: inline-block;
+
+  padding: 4px 7px;
+
+  border-radius: 3px;
+
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.incident-status.open {
+  color: #a8d5ff;
+  background: rgba(45, 140, 255, 0.16);
+}
+
+.incident-status.in_progress {
+  color: #ffe38a;
+  background: rgba(250, 204, 21, 0.16);
+}
+
+.incident-status.resolved {
+  color: #9ff5bd;
+  background: rgba(34, 197, 94, 0.16);
+}
+
+
+/* =========================
+   METRICS
+========================= */
+
+.metrics-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+/* =========================
+   METRIC SUMMARY
+========================= */
+
+.metrics-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+
+  margin-bottom: 8px;
+}
+
+.metric-card {
+  height: 105px;
+
+  padding: 14px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.metric-card-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: var(--muted);
+
+  font-size: 9px;
+}
+
+.metric-card strong {
+  margin-top: 7px;
+
+  font-size: 21px;
+  line-height: 1;
+
+  color: var(--text);
+}
+
+.metric-change {
+  margin-top: 6px;
+
+  font-size: 8px;
+}
+
+.metric-change.positive {
+  color: var(--green);
+}
+
+
+/* =========================
+   CHART
+========================= */
+
+.metrics-chart-widget {
+  height: 260px;
+
+  margin-bottom: 8px;
+
+  overflow: hidden;
+}
+
+.metrics-chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.metrics-chart-controls select {
+  height: 28px;
+
+  padding: 0 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 4px;
+
+  background: var(--background);
+  color: var(--text);
+
+  font-size: 9px;
+}
+
+
+/* =========================
+   DEVICE METRICS
+========================= */
+
+.device-name {
+  font-weight: 600;
+}
+
+/* =========================
+   AUDIT LOGS
+========================= */
+
+.audit-time {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.audit-user {
+  font-weight: 500;
+}
+
+.audit-resource-id {
+  font-family: monospace;
+  color: var(--muted);
+}
+
+.audit-action {
+  display: inline-block;
+
+  padding: 4px 7px;
+
+  border-radius: 3px;
+
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.audit-action.create {
+  color: #9ff5bd;
+  background: rgba(34, 197, 94, 0.16);
+}
+
+.audit-action.update {
+  color: #a8d5ff;
+  background: rgba(45, 140, 255, 0.16);
+}
+
+.audit-action.delete {
+  color: #ffb4b9;
+  background: rgba(232, 59, 69, 0.16);
+}
+
+.audit-action.assign {
+  color: #ffe38a;
+  background: rgba(250, 204, 21, 0.16);
+}
+
+.audit-action.acknowledge {
+  color: #c8b5ff;
+  background: rgba(168, 85, 247, 0.16);
+}
 
 /* =========================================
    RESPONSIVE
