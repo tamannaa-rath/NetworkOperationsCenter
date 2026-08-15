@@ -1467,6 +1467,189 @@ tbody tr:hover {
   background: rgba(168, 85, 247, 0.16);
 }
 
+
+/* =========================
+   ADD DEVICE MODAL
+========================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  z-index: 1000;
+}
+
+.modal {
+  width: 420px;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  background: var(--panel);
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.modal h2 {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* =========================
+   ADD DEVICE FORM
+========================= */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  margin-top: 18px;
+}
+
+.form-group label {
+  color: var(--muted);
+
+  font-size: 10px;
+}
+
+.form-group input {
+  width: 100%;
+
+  padding: 9px 10px;
+
+  box-sizing: border-box;
+
+  background: var(--background);
+
+  border: 1px solid var(--border);
+  border-radius: 4px;
+
+  color: var(--text);
+
+  font-size: 10px;
+
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: #2d8cff;
+}
+
+/* =========================
+   DEVICE UPDATE AND DELETE BUTTONS
+========================= */
+/* =========================
+   TABLE ACTION BUTTONS
+========================= */
+
+.device-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.device-action-button {
+  width: 26px;
+  height: 26px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  background: transparent;
+
+  border: 1px solid var(--border);
+  border-radius: 4px;
+
+  color: var(--muted);
+
+  cursor: pointer;
+}
+
+.device-action-button:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.device-action-button.delete:hover {
+  color: var(--red);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* =========================
+   SELECT
+========================= */
+.form-group select {
+  width: 100%;
+
+  padding: 9px 10px;
+
+  box-sizing: border-box;
+
+  background: var(--background);
+
+  border: 1px solid var(--border);
+  border-radius: 4px;
+
+  color: var(--text);
+
+  font-size: 10px;
+
+  outline: none;
+}
+
+.form-group select:focus {
+  border-color: #2d8cff;
+}
+
+/* =========================
+   MODAL BUTTONS
+========================= */
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+
+  margin-top: 20px;
+}
+
+.secondary-button {
+  padding: 8px 12px;
+
+  background: transparent;
+
+  border: 1px solid var(--border);
+  border-radius: 4px;
+
+  color: var(--text);
+
+  font-size: 10px;
+
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+
 /* =========================================
    RESPONSIVE
 ========================================= */

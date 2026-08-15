@@ -6,4 +6,13 @@ const deviceSchema = z.object({
     status: z.enum(["active", "inactive", "maintenance"]),
 });
 
-module.exports = deviceSchema;
+const updateDeviceSchema = z.object({
+    hostname: z.string().trim().min(3).optional(),
+    ipAddress: z.ipv4().optional(),
+    status: z.enum(["active", "inactive", "maintenance"]).optional(),
+});
+
+module.exports = {
+    deviceSchema,
+    updateDeviceSchema
+};

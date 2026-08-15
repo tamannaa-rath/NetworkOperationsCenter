@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const logger = require("./middleware/logger.middleware");
 const errorHandler = require("./middleware/error.middleware");
 
@@ -13,6 +14,11 @@ const metricsRouter = require("./routes/metrics.routes");
 const auditRouter = require("./routes/audit.routes");
 
 //middleware
+app.use(
+    cors({
+        origin: "http://localhost:5173"
+    })
+);
 app.use(express.json());
 app.use(logger);
 

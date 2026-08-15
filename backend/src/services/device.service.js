@@ -20,12 +20,25 @@ async function createNewDevice(device){
 
 async function updateDevice(id, update) {
     const device = await getDeviceById(id);
+
     if (!device) {
         return null;
     }
+
     const result = await pool.query(
-        "UPDATE devices SET hostname = $1, ip_address = $2, status = $3 WHERE id = $4 RETURNING *",
-        [update.hostname, update.ipAddress, update.status, id]
+        `UPDATE devices
+         SET
+            hostname = COALESCE($1, hostname),
+            ip_address = COALESCE($2, ip_address),
+            status = COALESCE($3, status)
+         WHERE id = $4
+         RETURNING *`,
+        [
+            update.hostname,
+            update.ipAddress,
+            update.status,
+            id
+        ]
     );
 
     return result.rows[0];
