@@ -6,54 +6,149 @@ import {
 
 import Header from "../components/Header";
 
-const incidents = [
-  {
-    id: "INC-1003",
-    title: "Router connectivity issue",
-    description: "Router is experiencing intermittent connectivity.",
-    severity: "CRITICAL",
-    status: "IN_PROGRESS",
-    deviceId: "router-03",
-    assignedTo: "John Doe",
-    createdAt: "10:30 AM",
-    resolvedAt: null,
-  },
-  {
-    id: "INC-1002",
-    title: "High latency in network",
-    description: "Network latency has exceeded the configured threshold.",
-    severity: "WARNING",
-    status: "IN_PROGRESS",
-    deviceId: "firewall-01",
-    assignedTo: "Jane Smith",
-    createdAt: "10:25 AM",
-    resolvedAt: null,
-  },
-  {
-    id: "INC-1001",
-    title: "Switch port down",
-    description: "Switch port is currently unreachable.",
-    severity: "WARNING",
-    status: "OPEN",
-    deviceId: "switch-07",
-    assignedTo: null,
-    createdAt: "10:20 AM",
-    resolvedAt: null,
-  },
-  {
-    id: "INC-1000",
-    title: "High memory usage",
-    description: "Server memory usage exceeded the warning threshold.",
-    severity: "WARNING",
-    status: "RESOLVED",
-    deviceId: "server-02",
-    assignedTo: "John Doe",
-    createdAt: "09:50 AM",
-    resolvedAt: "10:05 AM",
-  },
-];
+import { useEffect, useState } from "react";
+
+import { resolveIncident, assignIncident, getIncidentById, getIncidents } from "../services/incidents.service";
+
+import type { Incident } from "../types/incidents.types";
+
 
 function IncidentsPage() {
+
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [selectedSeverity, setSelectedSeverity] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [showAssignForm, setShowAssignForm] = useState(false);
+  const [selectedUser, setSelectedUser] = useState("");
+  const [showResolveForm, setShowResolveForm] = useState(false);
+  const [resolution, setResolution] = useState("");
+
+  // LOAD INCIDENTS WHEN THE COMPONENT MOUNTS
+  useEffect(() => {
+    async function loadIncidents() {
+      try {
+        const data = await getIncidents();
+
+        setIncidents(data);
+      } catch (error) {
+        console.error(error);
+
+        setError("Failed to load incidents");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadIncidents();
+  }, []);
+
+  
+  // FILTER INCIDENTS BASED ON SEARCH QUERY
+  const filteredIncidents = incidents.filter((incident) => {
+  const matchesSearch =
+    incident.title.toLowerCase().includes(search.toLowerCase()) ||
+    incident.description.toLowerCase().includes(search.toLowerCase()) ||
+    incident.hostname.toLowerCase().includes(search.toLowerCase());
+
+  const matchesSeverity =
+    selectedSeverity === "all" ||
+    incident.severity === selectedSeverity;
+
+  const matchesStatus =
+    selectedStatus === "all" ||
+    incident.status === selectedStatus;
+
+  return matchesSearch && matchesSeverity && matchesStatus;
+});
+
+
+// GET INCIDENT DETAILS WHEN AN INCIDENT IS SELECTED
+async function handleViewIncident(id: number) {
+  try {
+    setDetailsLoading(true);
+
+    const incident = await getIncidentById(id);
+
+    setSelectedIncident(incident);
+  } catch (error) {
+    console.error(error);
+    setError("Failed to load incident");
+  } finally {
+    setDetailsLoading(false);
+  }
+}
+
+
+// ASSIGN INCIDENT TO A USER
+  async function handleAssignIncident() {
+    if (!selectedIncident || !selectedUser) {
+      return;
+    }
+
+    try {
+      const updatedIncident = await assignIncident(
+        selectedIncident.id,
+        Number(selectedUser)
+      );
+
+      setIncidents((currentIncidents) =>
+        currentIncidents.map((incident) =>
+          incident.id === updatedIncident.id
+            ? {
+                ...incident,
+                ...updatedIncident,
+              }
+            : incident
+        )
+      );
+
+      setSelectedIncident(updatedIncident);
+
+      setShowAssignForm(false);
+      setSelectedUser("");
+    } catch (error) {
+      console.error(error);
+      setError("Failed to assign incident");
+    }
+  }
+
+
+  // RESOLVE INCIDENT
+  async function handleResolveIncident() {
+    if (!selectedIncident || !resolution.trim()) {
+      return;
+    }
+
+    try {
+      const updatedIncident = await resolveIncident(
+        selectedIncident.id,
+        resolution
+      );
+
+      setIncidents((currentIncidents) =>
+        currentIncidents.map((incident) =>
+          incident.id === updatedIncident.id
+            ? updatedIncident
+            : incident
+        )
+      );
+
+      setSelectedIncident(updatedIncident);
+
+      setShowResolveForm(false);
+      setResolution("");
+    } catch (error) {
+      console.error(error);
+      setError("Failed to resolve incident");
+    }
+  }
+
+
   return (
     <div className="noc-app">
 
@@ -98,24 +193,31 @@ function IncidentsPage() {
                 <input
                   type="text"
                   placeholder="Search incidents..."
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
                 />
 
               </div>
 
 
-              <select>
-                <option>All Severities</option>
-                <option>Critical</option>
-                <option>Warning</option>
-                <option>Info</option>
+              <select
+                value={selectedSeverity}
+                onChange={(event) => setSelectedSeverity(event.target.value)}
+              >
+                <option value="all">All Severities</option>
+                <option value="CRITICAL">Critical</option>
+                <option value="WARNING">Warning</option>
               </select>
 
 
-              <select>
-                <option>All Statuses</option>
-                <option>Open</option>
-                <option>In Progress</option>
-                <option>Resolved</option>
+              <select
+                value={selectedStatus}
+                onChange={(event) => setSelectedStatus(event.target.value)}
+              >
+                <option value="all">All Statuses</option>
+                <option value="OPEN">Open</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="RESOLVED">Resolved</option>
               </select>
 
 
@@ -153,9 +255,39 @@ function IncidentsPage() {
 
               <tbody>
 
-                {incidents.map((incident) => (
+                {loading && (
+                  <tr>
+                    <td colSpan={7}>
+                      Loading incidents...
+                    </td>
+                  </tr>
+                )}
 
-                  <tr key={incident.id}>
+                {error && !loading && (
+                  <tr>
+                    <td colSpan={7}>
+                      {error}
+                    </td>
+                  </tr>
+                )}
+
+                {!loading && !error && filteredIncidents.length === 0 && (
+                  <tr>
+                    <td colSpan={7}>
+                      No incidents found.
+                    </td>
+                  </tr>
+                )}
+
+                {!loading &&
+                  !error &&
+                  filteredIncidents.map((incident) => (
+
+                  <tr
+                    key={incident.id}
+                    onClick={() => handleViewIncident(incident.id)}
+                    className="incident-row"
+                  >
 
                     <td className="incident-id">
                       {incident.id}
@@ -168,7 +300,7 @@ function IncidentsPage() {
 
 
                     <td>
-                      {incident.deviceId}
+                      {incident.hostname}
                     </td>
 
 
@@ -195,12 +327,12 @@ function IncidentsPage() {
 
 
                     <td>
-                      {incident.assignedTo || "Unassigned"}
+                      {incident.assigned_to || "Unassigned"}
                     </td>
 
 
                     <td>
-                      {incident.createdAt}
+                      {incident.created_at}
                     </td>
 
                   </tr>
@@ -214,6 +346,197 @@ function IncidentsPage() {
           </div>
 
         </section>
+
+        {selectedIncident && (
+          <div className="incident-modal-overlay">
+
+            <div className="incident-modal">
+
+              <div className="incident-modal-header">
+
+                <div>
+                  <h2>{selectedIncident.title}</h2>
+                  <span>Incident #{selectedIncident.id}</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedIncident(null);
+                    setShowAssignForm(false);
+                    setShowResolveForm(false);
+                    setSelectedUser("");
+                    setResolution("");
+                  }}
+                >
+                  ×
+                </button>
+
+              </div>
+
+
+              <div className="incident-details">
+
+                <div>
+                  <span>Device</span>
+                  <strong>{selectedIncident.hostname}</strong>
+                </div>
+
+                <div>
+                  <span>Severity</span>
+                  <strong>{selectedIncident.severity}</strong>
+                </div>
+
+                <div>
+                  <span>Status</span>
+                  <strong>{selectedIncident.status}</strong>
+                </div>
+
+                <div>
+                  <span>Assigned To</span>
+                  <strong>
+                    {selectedIncident.assigned_to ?? "Unassigned"}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Created</span>
+                  <strong>
+                    {new Date(
+                      selectedIncident.created_at
+                    ).toLocaleString()}
+                  </strong>
+                </div>
+
+              </div>
+
+
+              <div className="incident-description">
+
+                <h3>Description</h3>
+
+                <p>
+                  {selectedIncident.description}
+                </p>
+
+              </div>
+
+              <div className="incident-actions">
+
+                {selectedIncident.status !== "RESOLVED" && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setShowAssignForm(true)}
+                    >
+                      Assign Incident
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowResolveForm(true)}
+                    >
+                      Resolve Incident
+                    </button>
+                  </>
+                )}
+
+              </div>
+
+              {/* ASSIGN FORM */}
+
+              {showAssignForm && (
+                <div className="incident-form">
+
+                  <h3>Assign Incident</h3>
+
+                  <select
+                    className="incident-form-select"
+                    value={selectedUser}
+                    onChange={(event) =>
+                      setSelectedUser(event.target.value)
+                    }
+                  >
+                    <option value="">Select user</option>
+                    <option value="2">User 2</option>
+                  </select>
+
+                  <div className="incident-form-actions">
+
+                    <button
+                      type="button"
+                      className="incident-primary-button"
+                      onClick={handleAssignIncident}
+                      disabled={!selectedUser}
+                    >
+                      Assign
+                    </button>
+
+                    <button
+                      type="button"
+                      className="incident-secondary-button"
+                      onClick={() => {
+                        setShowAssignForm(false);
+                        setSelectedUser("");
+                      }}
+                    >
+                      Cancel
+                    </button>
+
+                  </div>
+
+                </div>
+              )}
+
+
+              {/* RESOLVE FORM */}
+
+              {showResolveForm && (
+              <div className="incident-form">
+
+                <h3>Resolve Incident</h3>
+
+                <textarea
+                  className="incident-form-textarea"
+                  value={resolution}
+                  onChange={(event) =>
+                    setResolution(event.target.value)
+                  }
+                  placeholder="Describe how the incident was resolved..."
+                  rows={4}
+                />
+
+                <div className="incident-form-actions">
+
+                  <button
+                    type="button"
+                    className="incident-primary-button"
+                    onClick={handleResolveIncident}
+                    disabled={!resolution.trim()}
+                  >
+                    Resolve
+                  </button>
+
+                  <button
+                    type="button"
+                    className="incident-secondary-button"
+                    onClick={() => {
+                      setShowResolveForm(false);
+                      setResolution("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+
+                </div>
+
+              </div>
+            )}
+
+            </div>
+
+          </div>
+        )}
 
       </main>
 

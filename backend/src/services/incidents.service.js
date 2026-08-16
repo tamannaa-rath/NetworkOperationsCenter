@@ -5,23 +5,30 @@ const pool = require("../config/db");
 async function getAllIncidents() {
     const result = await pool.query(
         `
-        SELECT *
+        SELECT
+            incidents.*,
+            devices.hostname
         FROM incidents
-        ORDER BY created_at DESC
+        JOIN devices
+            ON incidents.device_id = devices.id
+        ORDER BY incidents.created_at DESC
         `
     );
 
     return result.rows;
 }
 
-
 // GET INCIDENT BY ID
 async function getIncidentById(id) {
     const result = await pool.query(
         `
-        SELECT *
+        SELECT
+            incidents.*,
+            devices.hostname
         FROM incidents
-        WHERE id = $1
+        JOIN devices
+            ON incidents.device_id = devices.id
+        WHERE incidents.id = $1
         `,
         [id]
     );
