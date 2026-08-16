@@ -2,7 +2,7 @@ const { z } = require("zod");
 
 
 const createAuditLogSchema = z.object({
-    userId: z.number()
+    user_id: z.number()
         .int()
         .positive(),
 
@@ -11,7 +11,7 @@ const createAuditLogSchema = z.object({
         .min(1)
         .max(100),
 
-    resourceType: z.enum([
+    resource_type: z.enum([
         "USER",
         "DEVICE",
         "ALERT",
@@ -19,7 +19,7 @@ const createAuditLogSchema = z.object({
         "METRIC"
     ]),
 
-    resourceId: z.number()
+    resource_id: z.number()
         .int()
         .positive(),
 
@@ -27,7 +27,7 @@ const createAuditLogSchema = z.object({
         .trim()
         .min(1),
 
-    ipAddress: z.ipv4().optional()
+    ip_address: z.ipv4().optional()
 });
 
 

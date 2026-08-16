@@ -6,55 +6,66 @@ import {
 
 import Header from "../components/Header";
 
-const auditLogs = [
-  {
-    id: 1,
-    user: "Admin User",
-    action: "CREATE",
-    resource: "Incident",
-    resourceId: "INC-1003",
-    description: "Created a new incident",
-    timestamp: "10:30 AM",
-  },
-  {
-    id: 2,
-    user: "John Doe",
-    action: "ASSIGN",
-    resource: "Incident",
-    resourceId: "INC-1002",
-    description: "Assigned incident to John Doe",
-    timestamp: "10:25 AM",
-  },
-  {
-    id: 3,
-    user: "Admin User",
-    action: "ACKNOWLEDGE",
-    resource: "Alert",
-    resourceId: "ALT-0042",
-    description: "Acknowledged critical alert",
-    timestamp: "10:20 AM",
-  },
-  {
-    id: 4,
-    user: "Jane Smith",
-    action: "UPDATE",
-    resource: "Device",
-    resourceId: "router-03",
-    description: "Updated device configuration",
-    timestamp: "10:15 AM",
-  },
-  {
-    id: 5,
-    user: "Admin User",
-    action: "DELETE",
-    resource: "Device",
-    resourceId: "switch-07",
-    description: "Removed device from inventory",
-    timestamp: "10:08 AM",
-  },
-];
+import { useEffect, useState } from "react";
+
+import { getAuditLogs } from "../services/audit.service";
+
+import type { AuditLog } from "../types/audit.types";
 
 function AuditLogsPage() {
+
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [search, setSearch] = useState("");
+  const [selectedAction, setSelectedAction] = useState("all");
+  const [selectedResource, setSelectedResource] = useState("all");
+
+  // LOAD AUDIT LOGS WHEN COMPONENT MOUNTS
+  useEffect(() => {
+    async function loadAuditLogs() {
+      try {
+        const data = await getAuditLogs();
+
+        setAuditLogs(data);
+      } catch (error) {
+        console.error(error);
+        setError("Failed to load audit logs");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadAuditLogs();
+  }, []);
+
+
+  // FILTER AUDIT LOGS
+  const filteredAuditLogs = auditLogs.filter((log) => {
+
+    const searchText = search.toLowerCase();
+
+    const matchesSearch =
+      log.action.toLowerCase().includes(searchText) ||
+      log.description.toLowerCase().includes(searchText) ||
+      log.resource_type.toLowerCase().includes(searchText) ||
+      String(log.user_id ?? "").includes(searchText);
+
+    const matchesAction =
+      selectedAction === "all" ||
+      log.action === selectedAction;
+
+    const matchesResource =
+      selectedResource === "all" ||
+      log.resource_type === selectedResource;
+
+    return (
+      matchesSearch &&
+      matchesAction &&
+      matchesResource
+    );
+  });
   return (
     <div className="noc-app">
 
@@ -100,27 +111,37 @@ function AuditLogsPage() {
                 <input
                   type="text"
                   placeholder="Search audit logs..."
-                />
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                 />
 
               </div>
 
 
-              <select>
-                <option>All Actions</option>
-                <option>CREATE</option>
-                <option>UPDATE</option>
-                <option>DELETE</option>
-                <option>ASSIGN</option>
-                <option>ACKNOWLEDGE</option>
+              <select
+                value={selectedAction}
+                onChange={(event) => setSelectedAction(event.target.value)}
+              >
+                <option value="all">All Actions</option>
+                <option value="CREATE">CREATE</option>
+                <option value="UPDATE">UPDATE</option>
+                <option value="DELETE">DELETE</option>
+                <option value="ASSIGN">ASSIGN</option>
+                <option value="ACKNOWLEDGE">ACKNOWLEDGE</option>
+                <option value="RESOLVE">RESOLVE</option>
               </select>
 
 
-              <select>
-                <option>All Resources</option>
-                <option>Device</option>
-                <option>Alert</option>
-                <option>Incident</option>
-                <option>User</option>
+              <select
+                value={selectedResource}
+                onChange={(event) => setSelectedResource(event.target.value)}
+              >
+                <option value="all">All Resources</option>
+                <option value="USER">User</option>
+                <option value="DEVICE">Device</option>
+                <option value="ALERT">Alert</option>
+                <option value="INCIDENT">Incident</option>
+                <option value="METRIC">Metric</option>
               </select>
 
 
@@ -157,43 +178,70 @@ function AuditLogsPage() {
 
               <tbody>
 
-                {auditLogs.map((log) => (
-
-                  <tr key={log.id}>
-
-                    <td className="audit-time">
-                      {log.timestamp}
+                {loading && (
+                  <tr>
+                    <td colSpan={6}>
+                      Loading audit logs...
                     </td>
-
-                    <td className="audit-user">
-                      {log.user}
-                    </td>
-
-                    <td>
-
-                      <span
-                        className={`audit-action ${log.action.toLowerCase()}`}
-                      >
-                        {log.action}
-                      </span>
-
-                    </td>
-
-                    <td>
-                      {log.resource}
-                    </td>
-
-                    <td className="audit-resource-id">
-                      {log.resourceId}
-                    </td>
-
-                    <td>
-                      {log.description}
-                    </td>
-
                   </tr>
+                )}
 
-                ))}
+                {error && (
+                  <tr>
+                    <td colSpan={6}>
+                      {error}
+                    </td>
+                  </tr>
+                )}
+
+                {!loading && !error && filteredAuditLogs.length === 0 && (
+                  <tr>
+                    <td colSpan={6}>
+                      No audit logs found.
+                    </td>
+                  </tr>
+                )}
+
+                {!loading &&
+                  !error &&
+                  filteredAuditLogs.map((log) => (
+
+                    <tr key={log.id}>
+
+                      <td className="audit-time">
+                        {new Date(log.created_at).toLocaleString()}
+                      </td>
+
+                      <td className="audit-user">
+                        {log.user_id ?? "System"}
+                      </td>
+
+                      <td>
+
+                        <span
+                          className={`audit-action ${log.action.toLowerCase()}`}
+                        >
+                          {log.action}
+                        </span>
+
+                      </td>
+
+                      <td>
+                        {log.resource_type}
+                      </td>
+
+                      <td className="audit-resource-id">
+                        {log.resource_id ?? "-"}
+                      </td>
+
+                      <td>
+                        {log.description}
+                      </td>
+
+                    </tr>
+
+                  ))
+                }
 
               </tbody>
 

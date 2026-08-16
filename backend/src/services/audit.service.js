@@ -46,12 +46,12 @@ async function createAuditLog(logData) {
         RETURNING *
         `,
         [
-            logData.userId,
+            logData.user_id,
             logData.action,
-            logData.resourceType,
-            logData.resourceId,
+            logData.resource_type,
+            logData.resource_id,
             logData.description,
-            logData.ipAddress || null
+            logData.ip_address || null
         ]
     );
 
