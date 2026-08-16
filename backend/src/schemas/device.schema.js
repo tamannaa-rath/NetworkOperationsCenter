@@ -2,13 +2,13 @@ const { z } = require("zod");
 
 const deviceSchema = z.object({
     hostname: z.string().trim().min(3),
-    ipAddress: z.ipv4(),
+    ip_address: z.ipv4(),
     status: z.enum(["active", "inactive", "maintenance"]),
 });
 
 const updateDeviceSchema = z.object({
     hostname: z.string().trim().min(3).optional(),
-    ipAddress: z.ipv4().optional(),
+    ip_address: z.ipv4().optional(),
     status: z.enum(["active", "inactive", "maintenance"]).optional(),
 });
 

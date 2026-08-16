@@ -1,7 +1,7 @@
 const { z } = require("zod");
 
 const createAlertSchema = z.object({
-    deviceId: z.number().int().positive(),
+    device_id: z.number().int().positive(),
 
     severity: z.enum([
         "WARNING",
@@ -13,7 +13,7 @@ const createAlertSchema = z.object({
 
 
 const updateAlertSchema = z.object({
-    deviceId: z.number().int().positive().optional(),
+    device_id: z.number().int().positive().optional(),
 
     severity: z.enum([
         "WARNING",
@@ -31,7 +31,7 @@ const updateAlertSchema = z.object({
 
 
 const acknowledgeAlertSchema = z.object({
-    userId: z.number().int().positive()
+    user_id: z.number().int().positive()
 });
 
 

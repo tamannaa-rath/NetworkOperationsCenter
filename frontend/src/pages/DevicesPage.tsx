@@ -33,7 +33,7 @@ function DevicesPage() {
   const [showAddDevice, setShowAddDevice] = useState(false);
 
   const [hostname, setHostname] = useState("");
-  const [ipAddress, setIpAddress] = useState("");
+  const [ip_address, setIpAddress] = useState("");
   const [status, setStatus] = useState<"active" | "inactive" | "maintenance">("active");
   const [submitting, setSubmitting] = useState(false);
 
@@ -66,7 +66,7 @@ function DevicesPage() {
         setSubmitting(true);
         const newDevice: CreateDeviceRequest = {
           hostname,
-          ipAddress,
+          ip_address,
           status,
         };
         await createDevice(newDevice);
@@ -124,7 +124,7 @@ function DevicesPage() {
 
         const updateData: UpdateDeviceRequest = {
           hostname: hostname || undefined,
-          ipAddress: ipAddress || undefined,
+          ip_address: ip_address || undefined,
           status: status || undefined,
         };
 
@@ -288,7 +288,7 @@ function DevicesPage() {
                       </td>
 
                       <td>
-                        {device.ipAddress}
+                        {device.ip_address}
                       </td>
 
                       <td>
@@ -309,7 +309,7 @@ function DevicesPage() {
                               setEditingDevice(device);
 
                               setHostname(device.hostname);
-                              setIpAddress(device.ipAddress);
+                              setIpAddress(device.ip_address);
                               setStatus(device.status);
 
                               setShowAddDevice(true);
@@ -384,7 +384,7 @@ function DevicesPage() {
 
                     <input
                       type="text"
-                      value={ipAddress}
+                      value={ip_address}
                       onChange={(event) =>
                         setIpAddress(event.target.value)
                       }

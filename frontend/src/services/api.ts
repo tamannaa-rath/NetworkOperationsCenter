@@ -1,9 +1,9 @@
 const API_BASE_URL = "http://localhost:3000/api";
 
-async function apiRequest(
+async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
-) {
+): Promise<T> {
   const response = await fetch(
     `${API_BASE_URL}${endpoint}`,
     {

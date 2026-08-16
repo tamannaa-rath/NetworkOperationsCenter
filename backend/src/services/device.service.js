@@ -13,7 +13,7 @@ async function getDeviceById(id) {
 async function createNewDevice(device){
     const result = await pool.query(
         "INSERT INTO devices(hostname, ip_address, status) VALUES($1, $2, $3) RETURNING *",
-        [device.hostname, device.ipAddress, device.status]
+        [device.hostname, device.ip_address, device.status]
     );
     return result.rows[0];
 }
@@ -35,7 +35,7 @@ async function updateDevice(id, update) {
          RETURNING *`,
         [
             update.hostname,
-            update.ipAddress,
+            update.ip_address,
             update.status,
             id
         ]

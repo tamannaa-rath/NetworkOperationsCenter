@@ -44,7 +44,7 @@ async function createAlert(alert) {
         RETURNING *
         `,
         [
-            alert.deviceId,
+            alert.device_id,
             alert.severity,
             alert.message
         ]
@@ -74,7 +74,7 @@ async function updateAlert(id, update) {
         RETURNING *
         `,
         [
-            update.deviceId ?? null,
+            update.device_id ?? null,
             update.severity ?? null,
             update.message ?? null,
             update.status ?? null,
@@ -102,7 +102,7 @@ async function deleteAlert(id) {
 
 
 // ACKNOWLEDGE
-async function acknowledgeAlert(id, userId) {
+async function acknowledgeAlert(id, user_id) {
     const result = await pool.query(
         `
         UPDATE alerts
@@ -114,7 +114,7 @@ async function acknowledgeAlert(id, userId) {
         RETURNING *
         `,
         [
-            userId,
+            user_id,
             id
         ]
     );

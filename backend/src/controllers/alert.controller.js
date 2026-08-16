@@ -80,10 +80,10 @@ async function acknowledgeAlert(req, res) {
 
     // Temporary:
     // Later this will come from authenticated user
-    const userId = req.body.userId;
+    const user_id = req.body.user_id;
 
     const alert =
-        await alertService.acknowledgeAlert(id, userId);
+        await alertService.acknowledgeAlert(id, user_id);
 
     if (!alert) {
         return res.status(404).json({

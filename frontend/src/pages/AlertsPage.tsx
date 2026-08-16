@@ -1,71 +1,91 @@
-import {
-  AlertTriangle,
-  Search,
-  SlidersHorizontal,
-} from "lucide-react";
-
 import Header from "../components/Header";
-
-const alerts = [
-  {
-    id: 1,
-    severity: "CRITICAL",
-    message: "High CPU usage detected (95%)",
-    deviceId: "router-03",
-    status: "ACTIVE",
-    createdAt: "2m ago",
-    acknowledgedBy: null,
-  },
-  {
-    id: 2,
-    severity: "CRITICAL",
-    message: "Device unreachable",
-    deviceId: "switch-07",
-    status: "ACTIVE",
-    createdAt: "5m ago",
-    acknowledgedBy: null,
-  },
-  {
-    id: 3,
-    severity: "WARNING",
-    message: "High memory usage (85%)",
-    deviceId: "server-02",
-    status: "ACTIVE",
-    createdAt: "8m ago",
-    acknowledgedBy: null,
-  },
-  {
-    id: 4,
-    severity: "WARNING",
-    message: "Packet loss detected (12%)",
-    deviceId: "firewall-01",
-    status: "ACKNOWLEDGED",
-    createdAt: "10m ago",
-    acknowledgedBy: "Admin User",
-  },
-  {
-    id: 5,
-    severity: "INFO",
-    message: "Configuration backup completed",
-    deviceId: "router-01",
-    status: "ACKNOWLEDGED",
-    createdAt: "15m ago",
-    acknowledgedBy: "Admin User",
-  },
-];
+import { useEffect, useState } from "react";
+import { 
+  getAlerts,
+  acknowledgeAlert,
+  updateAlert,
+} from "../services/alert.service";
+import type { Alert } from "../types/alert.types";
 
 function AlertsPage() {
+
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+
+  // LOAD ALERTS ON COMPONENT MOUNT
+  useEffect(() => {
+    async function loadAlerts() {
+      try {
+        const data = await getAlerts();
+
+        setAlerts(data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load alerts");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadAlerts();
+  }, []);
+
+
+  // HANDLE ACKNOWLEDGE ALERT
+  async function handleAcknowledgeAlert(id: number) {
+
+    try {
+
+      const updatedAlert = await acknowledgeAlert(id, 2); // Temporary user_id, replace with actual user ID in production
+
+      setAlerts((currentAlerts) =>
+        currentAlerts.map((alert) =>
+          alert.id === updatedAlert.id
+            ? updatedAlert
+            : alert
+        )
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      setError("Failed to acknowledge alert");
+
+    }
+  }
+
+
+  // RESOLVE ALERT
+  async function handleResolveAlert(id: number) {
+      try {
+        const updatedAlert = await updateAlert(id, {
+          status: "RESOLVED",
+        });
+
+        setAlerts((currentAlerts) =>
+          currentAlerts.map((alert) =>
+            alert.id === updatedAlert.id
+              ? updatedAlert
+              : alert
+          )
+        );
+
+      } catch (error) {
+        console.error(error);
+        setError("Failed to resolve alert");
+      }
+    }
+
   return (
     <div className="noc-app">
-
       <Header />
 
       <main className="dashboard">
 
-        {/* PAGE HEADER */}
-
         <div className="page-section-header">
-
           <div>
             <div className="page-title">
               Alerts
@@ -75,120 +95,121 @@ function AlertsPage() {
               Monitor and manage network alerts
             </div>
           </div>
-
         </div>
-
-
-        {/* ALERT TABLE */}
 
         <section className="widget">
 
           <div className="widget-header">
-
             <div className="widget-title">
-              <AlertTriangle size={15} />
-              Alert History
+              Alerts
             </div>
-
-            <div className="device-controls">
-
-              <div className="search-box">
-                <Search size={14} />
-
-                <input
-                  type="text"
-                  placeholder="Search alerts..."
-                />
-              </div>
-
-              <select>
-                <option>All Severities</option>
-                <option>Critical</option>
-                <option>Warning</option>
-                <option>Info</option>
-              </select>
-
-              <select>
-                <option>All Statuses</option>
-                <option>Active</option>
-                <option>Acknowledged</option>
-              </select>
-
-              <button className="filter-button">
-                <SlidersHorizontal size={14} />
-                Filters
-              </button>
-
-            </div>
-
           </div>
 
+          {loading && (
+            <div>
+              Loading alerts...
+            </div>
+          )}
 
-          <div className="table-container">
+          {error && (
+            <div>
+              {error}
+            </div>
+          )}
 
-            <table className="data-table">
+          {!loading && !error && (
+            <div className="table-container">
 
-              <thead>
-                <tr>
-                  <th>Severity</th>
-                  <th>Message</th>
-                  <th>Device</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th>Acknowledged By</th>
-                </tr>
-              </thead>
+              {alerts.length === 0 ? (
 
-              <tbody>
+                <div className="empty-state">
+                  No alerts found
+                </div>
 
-                {alerts.map((alert) => (
-                  <tr key={alert.id}>
+              ) : (
 
-                    <td>
-                      <span
-                        className={`severity ${alert.severity.toLowerCase()}`}
-                      >
-                        {alert.severity}
-                      </span>
-                    </td>
+                <table className="data-table">
 
-                    <td className="alert-message">
-                      {alert.message}
-                    </td>
+                  <thead>
+                    <tr>
+                      <th>Severity</th>
+                      <th>Message</th>
+                      <th>Device</th>
+                      <th>Status</th>
+                      <th>Created</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
 
-                    <td>
-                      {alert.deviceId}
-                    </td>
+                  <tbody>
 
-                    <td>
-                      <span
-                        className={`alert-status ${alert.status.toLowerCase()}`}
-                      >
-                        {alert.status}
-                      </span>
-                    </td>
+                    {alerts.map((alert) => (
 
-                    <td>
-                      {alert.createdAt}
-                    </td>
+                      <tr key={alert.id}>
 
-                    <td>
-                      {alert.acknowledgedBy || "—"}
-                    </td>
+                        <td>
+                          <span
+                            className={`alert-severity ${alert.severity.toLowerCase()}`}
+                          >
+                            {alert.severity}
+                          </span>
+                        </td>
 
-                  </tr>
-                ))}
+                        <td>
+                          {alert.message}
+                        </td>
 
-              </tbody>
+                        <td>
+                          {alert.device_id}
+                        </td>
 
-            </table>
+                        <td>
+                          {alert.status}
+                        </td>
 
-          </div>
+                        <td>
+                          {new Date(
+                            alert.created_at
+                          ).toLocaleString()}
+                        </td>
+
+                        <td>
+                          {alert.status === "ACTIVE" && (
+                            <button
+                              className="device-action-button"
+                              type="button"
+                              onClick={() => handleAcknowledgeAlert(alert.id)}
+                            >
+                              Acknowledge
+                            </button>
+                          )}
+                          {alert.status === "ACKNOWLEDGED" && (
+                            <button
+                              className="device-action-button"
+                              type="button"
+                              onClick={() => handleResolveAlert(alert.id)}
+                            >
+                              Resolve
+                            </button>
+                          )}
+                        </td>
+
+                      </tr>
+
+                    ))}
+
+                  </tbody>
+
+                </table>
+
+              )}
+
+            </div>
+          )}
 
         </section>
 
       </main>
-
     </div>
   );
 }
