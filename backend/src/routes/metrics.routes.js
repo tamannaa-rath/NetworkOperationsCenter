@@ -10,7 +10,7 @@ router.get(
     metricsController.getMetrics
 );
 router.get(
-    "/device/:deviceId",
+    "/device/:device_id",
     metricsController.getDeviceMetrics
 );router.get(
     "/:id",

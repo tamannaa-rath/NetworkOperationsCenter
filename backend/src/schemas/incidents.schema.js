@@ -11,7 +11,7 @@ const createIncidentSchema = z.object({
         "CRITICAL"
     ]),
 
-    deviceId: z.number().int().positive()
+    device_id: z.number().int().positive()
 });
 
 
@@ -25,12 +25,12 @@ const updateIncidentSchema = z.object({
         "CRITICAL"
     ]).optional(),
 
-    deviceId: z.number().int().positive().optional()
+    device_id: z.number().int().positive().optional()
 });
 
 
 const assignIncidentSchema = z.object({
-    userId: z.number().int().positive()
+    user_id: z.number().int().positive()
 });
 
 
@@ -40,7 +40,7 @@ const resolveIncidentSchema = z.object({
 
 
 const addIncidentCommentSchema = z.object({
-    userId: z.number().int().positive(),
+    user_id: z.number().int().positive(),
 
     message: z.string().trim().min(1)
 });

@@ -8,16 +8,15 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
-  { time: "10:15", cpu: 32, memory: 11, throughput: 56 },
-  { time: "10:18", cpu: 48, memory: 20, throughput: 72 },
-  { time: "10:21", cpu: 37, memory: 15, throughput: 58 },
-  { time: "10:24", cpu: 46, memory: 19, throughput: 75 },
-  { time: "10:27", cpu: 41, memory: 23, throughput: 63 },
-  { time: "10:30", cpu: 43, memory: 25, throughput: 67 },
-];
+import type { Metric } from "../types/metrics.types";
 
-function NetworkPerformance() {
+function NetworkPerformance({
+  metrics = [],
+  selectedMetric = "all",
+}: {
+  metrics: Metric[];
+  selectedMetric?: string;
+}) {
   return (
     <div className="network-performance">
 
@@ -44,7 +43,15 @@ function NetworkPerformance() {
 
         <ResponsiveContainer width="100%" height="100%">
         <LineChart
-        data={data}
+        data={metrics.map((metric) => ({
+            time: new Date(metric.timestamp).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit"
+            }),
+            cpu: Number(metric.cpu_usage),
+            memory: Number(metric.memory_usage),
+            throughput: Number(metric.network_throughput),
+        }))}
         margin={{
             top: 5,
             right: 12,
@@ -92,33 +99,38 @@ function NetworkPerformance() {
               }}
             />
 
-            <Line
-              type="monotone"
-              dataKey="cpu"
-              stroke="#2d8cff"
-              strokeWidth={2}
-              dot={false}
-              name="CPU Usage"
-            />
+            {(selectedMetric === "all" || selectedMetric === "cpu") && (
+              <Line
+                type="monotone"
+                dataKey="cpu"
+                stroke="#2d8cff"
+                strokeWidth={2}
+                dot={false}
+                name="CPU Usage"
+              />
+            )}
 
-            <Line
-              type="monotone"
-              dataKey="memory"
-              stroke="#22c55e"
-              strokeWidth={2}
-              dot={false}
-              name="Memory Usage"
-            />
+            {(selectedMetric === "all" || selectedMetric === "memory") && (
+              <Line
+                type="monotone"
+                dataKey="memory"
+                stroke="#22c55e"
+                strokeWidth={2}
+                dot={false}
+                name="Memory Usage"
+              />
+            )}
 
-            <Line
-              type="monotone"
-              dataKey="throughput"
-              stroke="#a855f7"
-              strokeWidth={2}
-              dot={false}
-              name="Network Throughput"
-            />
-
+            {(selectedMetric === "all" || selectedMetric === "throughput") && (
+              <Line
+                type="monotone"
+                dataKey="throughput"
+                stroke="#a855f7"
+                strokeWidth={2}
+                dot={false}
+                name="Network Throughput"
+              />
+            )}
           </LineChart>
         </ResponsiveContainer>
 

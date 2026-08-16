@@ -30,12 +30,12 @@ async function getMetric(req, res) {
 
 // GET /api/metrics/device/:deviceId
 async function getDeviceMetrics(req, res) {
-    const deviceId =
-        Number(req.params.deviceId);
+    const device_id =
+        Number(req.params.device_id);
 
     const metrics =
         await metricsService.getMetricsByDeviceId(
-            deviceId
+            device_id
         );
 
     res.json(metrics);

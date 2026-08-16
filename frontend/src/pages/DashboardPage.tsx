@@ -249,7 +249,7 @@ function DashboardPage() {
 
             </div>
 
-            <NetworkPerformance />
+            <NetworkPerformance metrics={[]} />
 
           </div>
 

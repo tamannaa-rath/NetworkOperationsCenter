@@ -2,27 +2,27 @@ const { z } = require("zod");
 
 
 const createMetricSchema = z.object({
-    deviceId: z.number().int().positive(),
+    device_id: z.number().int().positive(),
 
-    cpuUsage: z.number()
+    cpu_usage: z.number()
         .min(0)
         .max(100),
 
-    memoryUsage: z.number()
+    memory_usage: z.number()
         .min(0)
         .max(100),
 
-    diskUsage: z.number()
+    disk_usage: z.number()
         .min(0)
         .max(100),
 
-    networkThroughput: z.number()
+    network_throughput: z.number()
         .min(0),
 
     latency: z.number()
         .min(0),
 
-    packetLoss: z.number()
+    packet_loss: z.number()
         .min(0)
         .max(100)
 });

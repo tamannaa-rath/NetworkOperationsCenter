@@ -7,45 +7,103 @@ import {
 } from "lucide-react";
 
 import Header from "../components/Header";
-
+import { useState, useEffect } from "react";
 import NetworkPerformance from "../components/NetworkPerformance";
 
-const devices = [
-  {
-    hostname: "router-03",
-    cpu: "95%",
-    memory: "72%",
-    disk: "61%",
-    latency: "24 ms",
-    packetLoss: "0.8%",
-  },
-  {
-    hostname: "server-02",
-    cpu: "82%",
-    memory: "68%",
-    disk: "74%",
-    latency: "18 ms",
-    packetLoss: "0.2%",
-  },
-  {
-    hostname: "firewall-01",
-    cpu: "68%",
-    memory: "54%",
-    disk: "48%",
-    latency: "12 ms",
-    packetLoss: "0.1%",
-  },
-  {
-    hostname: "switch-04",
-    cpu: "55%",
-    memory: "48%",
-    disk: "43%",
-    latency: "9 ms",
-    packetLoss: "0.0%",
-  },
-];
+import { 
+  getMetrics,
+} from "../services/metrics.service";
+
+import { getDevices } from "../services/device.service";
+
+import type { 
+  Metric,
+ } from "../types/metrics.types";
+
+ import type { Device } from "../types/device.types";
+
 
 function MetricsPage() {
+
+  const [metrics, setMetrics] = useState<Metric[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [selectedDevice, setSelectedDevice] = useState("all");
+  const [selectedMetric, setSelectedMetric] = useState("all");
+
+
+  // FETCH METRICS DATA WHEN PAGE LOADS ie COMPONENT MOUNTS
+  useEffect(() => {
+    async function loadMetrics() {
+      try { 
+        const data = await getMetrics();
+        setMetrics(data);
+      } catch (error) {
+        console.error(error);
+        setError("Failed to load metrics");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadMetrics();
+  }, []);
+
+
+  // FETCH DEVICES DATA WHEN PAGE LOADS ie COMPONENT MOUNTS
+  useEffect(() => {
+    async function loadDevices() {
+      try {
+        const data = await getDevices();
+        setDevices(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    loadDevices();
+  }, []);
+
+
+  // FILTER METRICS BASED ON SELECTED DEVICE
+  const filteredMetrics =
+  selectedDevice === "all"
+    ? metrics
+    : metrics.filter(
+        (metric) => String(metric.device_id) === selectedDevice
+      );
+
+
+
+  // CALCULATE AVERAGE METRICS
+  const average_cpu =
+  filteredMetrics.length > 0
+    ? filteredMetrics.reduce((sum, metric) => sum + Number(metric.cpu_usage), 0) / filteredMetrics.length
+    : 0;
+
+  const average_memory =
+    filteredMetrics.length > 0
+      ? filteredMetrics.reduce((sum, metric) => sum + Number(metric.memory_usage), 0) / filteredMetrics.length
+      : 0;
+
+  const average_network_throughput =
+    filteredMetrics.length > 0
+      ? filteredMetrics.reduce(
+          (sum, metric) => sum + Number(metric.network_throughput),
+          0
+        ) / filteredMetrics.length
+      : 0;
+
+  const average_latency =
+    filteredMetrics.length > 0
+      ? filteredMetrics.reduce(
+          (sum, metric) => sum + Number(metric.latency),
+          0
+        ) / filteredMetrics.length
+      : 0;
+
+
+
   return (
     <div className="noc-app">
 
@@ -75,11 +133,21 @@ function MetricsPage() {
               <option>Last 24 hours</option>
             </select>
 
-            <select className="header-time-select">
-              <option>All Devices</option>
-              <option>router-03</option>
-              <option>server-02</option>
-              <option>firewall-01</option>
+            <select
+              className="header-time-select"
+              value={selectedDevice}
+              onChange={(event) => setSelectedDevice(event.target.value)}
+            >
+              <option value="all">All Devices</option>
+
+              {devices.map((device) => (
+                <option
+                  key={device.id}
+                  value={device.id}
+                >
+                  {device.hostname}
+                </option>
+              ))}
             </select>
 
           </div>
@@ -100,10 +168,10 @@ function MetricsPage() {
               Average CPU
             </div>
 
-            <strong>42.6%</strong>
+            <strong>{average_cpu.toFixed(1)}%</strong>
 
-            <span className="metric-change positive">
-              ↓ 5.2% from previous period
+            <span className="metric-change">
+              Based on {filteredMetrics.length} metric{filteredMetrics.length !== 1 ? "s" : ""}
             </span>
 
           </div>
@@ -116,10 +184,10 @@ function MetricsPage() {
               Average Memory
             </div>
 
-            <strong>51.8%</strong>
+            <strong>{average_memory.toFixed(1)}%</strong>
 
-            <span className="metric-change positive">
-              ↓ 2.1% from previous period
+            <span className="metric-change">
+              Based on {filteredMetrics.length} metric{filteredMetrics.length !== 1 ? "s" : ""}
             </span>
 
           </div>
@@ -132,10 +200,10 @@ function MetricsPage() {
               Network Throughput
             </div>
 
-            <strong>67.4 Mbps</strong>
+            <strong>{average_network_throughput.toFixed(1)} Mbps</strong>
 
-            <span className="metric-change positive">
-              ↑ 4.8% from previous period
+            <span className="metric-change">
+              Based on {filteredMetrics.length} metric{filteredMetrics.length !== 1 ? "s" : ""}
             </span>
 
           </div>
@@ -148,10 +216,10 @@ function MetricsPage() {
               Average Latency
             </div>
 
-            <strong>18.4 ms</strong>
+            <strong>{average_latency.toFixed(1)} ms</strong>
 
-            <span className="metric-change positive">
-              ↓ 1.8 ms from previous period
+            <span className="metric-change">
+              Based on {filteredMetrics.length} metric{filteredMetrics.length !== 1 ? "s" : ""}
             </span>
 
           </div>
@@ -174,11 +242,14 @@ function MetricsPage() {
 
             <div className="metrics-chart-controls">
 
-              <select>
-                <option>All Metrics</option>
-                <option>CPU Usage</option>
-                <option>Memory Usage</option>
-                <option>Network Throughput</option>
+              <select
+                value={selectedMetric}
+                onChange={(event) => setSelectedMetric(event.target.value)}
+              >
+                <option value="all">All Metrics</option>
+                <option value="cpu">CPU Usage</option>
+                <option value="memory">Memory Usage</option>
+                <option value="throughput">Network Throughput</option>
               </select>
 
               <select>
@@ -191,7 +262,10 @@ function MetricsPage() {
 
           </div>
 
-          <NetworkPerformance />
+          <NetworkPerformance
+            metrics={filteredMetrics}
+            selectedMetric={selectedMetric}
+          />
 
         </section>
 
@@ -213,48 +287,49 @@ function MetricsPage() {
 
           <div className="table-container">
 
-            <table className="data-table">
+            {loading && (
+              <p>Loading metrics...</p>
+            )}
 
-              <thead>
+            {error && (
+              <p>{error}</p>
+            )}
 
-                <tr>
-                  <th>Device</th>
-                  <th>CPU</th>
-                  <th>Memory</th>
-                  <th>Disk</th>
-                  <th>Latency</th>
-                  <th>Packet Loss</th>
-                </tr>
+            {!loading && !error && (
+              <table className="data-table">
 
-              </thead>
+                <thead>
 
-              <tbody>
-
-                {devices.map((device) => (
-
-                  <tr key={device.hostname}>
-
-                    <td className="device-name">
-                      {device.hostname}
-                    </td>
-
-                    <td>{device.cpu}</td>
-
-                    <td>{device.memory}</td>
-
-                    <td>{device.disk}</td>
-
-                    <td>{device.latency}</td>
-
-                    <td>{device.packetLoss}</td>
-
+                  <tr>
+                    <th>Device</th>
+                    <th>CPU</th>
+                    <th>Memory</th>
+                    <th>Disk</th>
+                    <th>Latency</th>
+                    <th>Packet Loss</th>
                   </tr>
 
-                ))}
+                </thead>
 
-              </tbody>
+                <tbody>
+                  {filteredMetrics.map((metric) => (
+                    <tr key={metric.id}>
 
-            </table>
+                      <td className="device-name">Device {metric.hostname}</td>
+                      <td>{metric.cpu_usage}%</td>
+                      <td>{metric.memory_usage}%</td>
+                      <td>{metric.disk_usage}%</td>
+                      <td>{metric.latency} ms</td>
+                      <td>{metric.packet_loss}%</td>
+
+                    </tr>
+
+                  ))}
+
+                </tbody>
+
+              </table>
+            )}
 
           </div>
 

@@ -5,9 +5,13 @@ const pool = require("../config/db");
 async function getAllMetrics() {
     const result = await pool.query(
         `
-        SELECT *
+        SELECT
+            metrics.*,
+            devices.hostname
         FROM metrics
-        ORDER BY timestamp DESC
+        JOIN devices
+            ON metrics.device_id = devices.id
+        ORDER BY metrics.timestamp DESC
         `
     );
 
@@ -31,7 +35,7 @@ async function getMetricById(id) {
 
 
 // GET METRICS FOR A DEVICE
-async function getMetricsByDeviceId(deviceId) {
+async function getMetricsByDeviceId(device_id) {
     const result = await pool.query(
         `
         SELECT *
@@ -39,7 +43,7 @@ async function getMetricsByDeviceId(deviceId) {
         WHERE device_id = $1
         ORDER BY timestamp DESC
         `,
-        [deviceId]
+        [device_id]
     );
 
     return result.rows;
@@ -71,13 +75,13 @@ async function createMetric(metric) {
         RETURNING *
         `,
         [
-            metric.deviceId,
-            metric.cpuUsage,
-            metric.memoryUsage,
-            metric.diskUsage,
-            metric.networkThroughput,
+            metric.device_id,
+            metric.cpu_usage,
+            metric.memory_usage,
+            metric.disk_usage,
+            metric.network_throughput,
             metric.latency,
-            metric.packetLoss
+            metric.packet_loss
         ]
     );
 

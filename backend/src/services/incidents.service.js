@@ -54,7 +54,7 @@ async function createIncident(incident) {
             incident.title,
             incident.description,
             incident.severity,
-            incident.deviceId
+            incident.device_id
         ]
     );
 
@@ -85,7 +85,7 @@ async function updateIncident(id, update) {
             update.title ?? null,
             update.description ?? null,
             update.severity ?? null,
-            update.deviceId ?? null,
+            update.device_id ?? null,
             id
         ]
     );
@@ -110,7 +110,7 @@ async function deleteIncident(id) {
 
 
 // ASSIGN INCIDENT
-async function assignIncident(id, userId) {
+async function assignIncident(id, user_id) {
     const result = await pool.query(
         `
         UPDATE incidents
@@ -122,7 +122,7 @@ async function assignIncident(id, userId) {
         RETURNING *
         `,
         [
-            userId,
+            user_id,
             id
         ]
     );
@@ -156,7 +156,7 @@ async function resolveIncident(id, resolution) {
 // ADD COMMENT
 async function addIncidentComment(
     id,
-    userId,
+    user_id,
     message
 ) {
     // First make sure incident exists
@@ -178,7 +178,7 @@ async function addIncidentComment(
         `,
         [
             id,
-            userId,
+            user_id,
             message
         ]
     );

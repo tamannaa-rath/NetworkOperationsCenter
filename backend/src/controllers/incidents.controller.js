@@ -84,12 +84,12 @@ async function deleteIncident(req, res) {
 async function assignIncident(req, res) {
     const id = Number(req.params.id);
 
-    const userId = req.body.userId;
+    const user_id = req.body.user_id;
 
     const incident =
         await incidentService.assignIncident(
             id,
-            userId
+            user_id
         );
 
     if (!incident) {
@@ -128,13 +128,13 @@ async function resolveIncident(req, res) {
 async function addComment(req, res) {
     const id = Number(req.params.id);
 
-    const userId = req.body.userId;
+    const user_id = req.body.user_id;
     const message = req.body.message;
 
     const comment =
         await incidentService.addIncidentComment(
             id,
-            userId,
+            user_id,
             message
         );
 
