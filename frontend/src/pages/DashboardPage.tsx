@@ -15,7 +15,58 @@ import OpenIncidents from "../components/OpenIncidents";
 import TopDevices from "../components/TopDevices";
 import RecentActivity from "../components/RecentActivity";
 
+import { useEffect, useState } from "react";
+import socket from "../services/socket";
+import { getAlerts } from "../services/alert.service";
+import type { Alert } from "../types/alert.types";
+
 function DashboardPage() {
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+
+    useEffect(() => {
+    async function loadAlerts() {
+      try {
+        const data = await getAlerts();
+        setAlerts(data);
+      } catch (error) {
+        console.error("Failed to load dashboard alerts:", error);
+      }
+    }
+
+    loadAlerts();
+  }, []);
+
+  useEffect(() => {
+
+    function handleNewAlert(alert: Alert) {
+      setAlerts((currentAlerts) => [
+        alert,
+        ...currentAlerts,
+      ]);
+    }
+
+    socket.on("alert:created", handleNewAlert);
+
+    return () => {
+      socket.off("alert:created", handleNewAlert);
+    };
+
+  }, []);
+
+
+  const activeAlerts = alerts.filter(
+    (alert) => alert.status === "ACTIVE"
+  );
+
+  const criticalAlerts = activeAlerts.filter(
+    (alert) => alert.severity === "CRITICAL"
+  );
+
+  const warningAlerts = activeAlerts.filter(
+    (alert) => alert.severity === "WARNING"
+  );
+
+  
   return (
     <div className="noc-app">
 
@@ -77,7 +128,7 @@ function DashboardPage() {
             <div className="alert-summary">
 
               <div className="big-number">
-                7
+                {activeAlerts.length}
                 <span>Active Alerts</span>
               </div>
 
@@ -86,19 +137,13 @@ function DashboardPage() {
                 <div>
                   <span className="severity-dot critical" />
                   Critical
-                  <strong>3</strong>
+                  <strong>{criticalAlerts.length}</strong>
                 </div>
 
                 <div>
                   <span className="severity-dot warning" />
                   Warning
-                  <strong>3</strong>
-                </div>
-
-                <div>
-                  <span className="severity-dot info" />
-                  Info
-                  <strong>1</strong>
+                  <strong>{warningAlerts.length}</strong>
                 </div>
 
               </div>

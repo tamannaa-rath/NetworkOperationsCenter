@@ -1,6 +1,5 @@
-const metricsService =
-    require("../services/metrics.service");
-
+const metricsService = require("../services/metrics.service");
+const alertEngine = require("../services/alertEngine.service");
 
 // GET /api/metrics
 async function getMetrics(req, res) {
@@ -44,10 +43,15 @@ async function getDeviceMetrics(req, res) {
 
 // POST /api/metrics
 async function createMetric(req, res) {
+
     const metric = req.body;
 
     const newMetric =
         await metricsService.createMetric(metric);
+
+
+    await alertEngine.evaluateMetric(newMetric);
+
 
     res.status(201).json(newMetric);
 }

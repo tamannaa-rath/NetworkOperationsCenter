@@ -123,11 +123,60 @@ async function acknowledgeAlert(id, user_id) {
 }
 
 
+async function createAlertIfNotActive(alert) {
+
+    const existingAlert = await pool.query(
+        `
+        SELECT *
+        FROM alerts
+        WHERE device_id = $1
+          AND severity = $2
+          AND message = $3
+          AND status = 'ACTIVE'
+        LIMIT 1
+        `,
+        [
+            alert.device_id,
+            alert.severity,
+            alert.message
+        ]
+    );
+
+
+    if (existingAlert.rows.length > 0) {
+        return null;
+    }
+
+
+    const result = await pool.query(
+        `
+        INSERT INTO alerts (
+            device_id,
+            severity,
+            message,
+            status
+        )
+        VALUES ($1, $2, $3, 'ACTIVE')
+        RETURNING *
+        `,
+        [
+            alert.device_id,
+            alert.severity,
+            alert.message
+        ]
+    );
+
+
+    return result.rows[0];
+}
+
+
 module.exports = {
     getAllAlerts,
     getAlertById,
     createAlert,
     updateAlert,
     deleteAlert,
-    acknowledgeAlert
+    acknowledgeAlert,
+    createAlertIfNotActive
 };

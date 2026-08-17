@@ -6,13 +6,50 @@ import {
   updateAlert,
 } from "../services/alert.service";
 import type { Alert } from "../types/alert.types";
+import socket from "../services/socket";
 
 function AlertsPage() {
+  console.log("Socket object:", socket);
+  console.log("Socket connected:", socket.connected);
 
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+
+  // SOCKET CONNECTED - CONNECTION MONITORING
+  useEffect(() => {
+      console.log("Setting up socket connection...");
+      function handleConnect() {
+          console.log("Socket connected:", socket.id);
+      }
+      function handleConnectError(error: Error) {
+          console.error("Socket connection error:", error.message);
+      }
+      socket.on("connect", handleConnect);
+      socket.on("connect_error", handleConnectError);
+      return () => {
+          socket.off("connect", handleConnect);
+          socket.off("connect_error", handleConnectError);
+      };
+  }, []);
+
+
+  // ALERT EVENTS
+  useEffect(() => {
+    function handleNewAlert(alert: Alert) {
+        console.log("New alert received:", alert);
+        setAlerts((currentAlerts) => [
+            alert,
+            ...currentAlerts,
+        ]);
+    }
+    socket.on("alert:created", handleNewAlert);
+    return () => {
+        socket.off("alert:created", handleNewAlert);
+    };
+  }, []);
+
 
   // LOAD ALERTS ON COMPONENT MOUNT
   useEffect(() => {
@@ -78,6 +115,25 @@ function AlertsPage() {
         setError("Failed to resolve alert");
       }
     }
+
+  
+    // BROADCASTING THE ALERT
+    useEffect(() => {
+      function handleAlertUpdated(updatedAlert: Alert) {
+        setAlerts((currentAlerts) =>
+          currentAlerts.map((alert) =>
+            alert.id === updatedAlert.id
+              ? updatedAlert
+              : alert
+          )
+        );
+      }
+      socket.on("alert:updated", handleAlertUpdated);
+      return () => {
+        socket.off("alert:updated", handleAlertUpdated);
+      };
+    }, []);
+    
 
   return (
     <div className="noc-app">

@@ -7,6 +7,9 @@ import {
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getAlerts } from "../services/alert.service";
+import socket from "../services/socket";
 
 const tabs = [
   {
@@ -36,6 +39,44 @@ const tabs = [
 ];
 
 function Header() {
+
+  const [activeAlertCount, setActiveAlertCount] = useState(0);
+
+    useEffect(() => {
+    async function loadAlertCount() {
+      try {
+        const alerts = await getAlerts();
+
+        const activeAlerts = alerts.filter(
+          (alert) => alert.status === "ACTIVE"
+        );
+
+        setActiveAlertCount(activeAlerts.length);
+
+      } catch (error) {
+        console.error("Failed to load alert count:", error);
+      }
+    }
+
+    loadAlertCount();
+  }, []);
+
+
+
+  useEffect(() => {
+
+    function handleNewAlert() {
+      setActiveAlertCount((currentCount) => currentCount + 1);
+    }
+
+    socket.on("alert:created", handleNewAlert);
+
+    return () => {
+      socket.off("alert:created", handleNewAlert);
+    };
+
+  }, []);
+
   return (
     <header className="topbar">
 
@@ -67,7 +108,7 @@ function Header() {
 
             {tab.name === "Alerts" && (
               <span className="tab-badge alert">
-                7
+                {activeAlertCount}
               </span>
             )}
 

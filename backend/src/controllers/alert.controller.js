@@ -1,5 +1,5 @@
 const alertService = require("../services/alert.service");
-
+const { getIO } = require("../socket/socket");
 
 // GET /api/alerts
 async function getAlerts(req, res) {
@@ -39,17 +39,18 @@ async function createAlert(req, res) {
 // PUT /api/alerts/:id
 async function updateAlert(req, res) {
     const id = Number(req.params.id);
-    const update = req.body;
-
     const updatedAlert =
-        await alertService.updateAlert(id, update);
-
+        await alertService.updateAlert(
+            id,
+            req.body
+        );
     if (!updatedAlert) {
         return res.status(404).json({
             message: "Alert not found"
         });
     }
-
+    const io = getIO();
+    io.emit("alert:updated", updatedAlert);
     res.json(updatedAlert);
 }
 
@@ -76,22 +77,27 @@ async function deleteAlert(req, res) {
 
 // POST /api/alerts/:id/acknowledge
 async function acknowledgeAlert(req, res) {
-    const id = Number(req.params.id);
 
-    // Temporary:
-    // Later this will come from authenticated user
+    const id = Number(req.params.id);
     const user_id = req.body.user_id;
 
-    const alert =
-        await alertService.acknowledgeAlert(id, user_id);
+    const updatedAlert =
+        await alertService.acknowledgeAlert(
+            id,
+            user_id
+        );
 
-    if (!alert) {
+    if (!updatedAlert) {
         return res.status(404).json({
             message: "Alert not found"
         });
     }
 
-    res.json(alert);
+    const io = getIO();
+
+    io.emit("alert:updated", updatedAlert);
+
+    res.json(updatedAlert);
 }
 
 
