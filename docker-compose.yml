@@ -1,0 +1,24 @@
+services:
+  redis:
+    image: redis:7
+    container_name: noc-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+
+  postgres:
+    image: postgres:16
+    container_name: noc-postgres
+    environment:
+      POSTGRES_USER: noc_user
+      POSTGRES_PASSWORD: noc_password
+      POSTGRES_DB: noc_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  redis_data:
+  postgres_data:
