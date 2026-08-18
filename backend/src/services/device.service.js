@@ -1,8 +1,35 @@
 const pool = require("../config/db");
+const { redisClient } = require("../config/redis");
 
 async function getAllDevices() {
-    const devices = await pool.query("SELECT * FROM devices");
-    return devices.rows;
+    const cacheKey = "devices:all";
+    // CHECK REDIS CACHE
+    const cachedDevices =
+        await redisClient.get(cacheKey);
+    if (cachedDevices) {
+        console.log("Devices cache HIT");
+        return JSON.parse(cachedDevices);
+    }
+
+    // CACHE MISS → QUERY POSTGRESQL
+    console.log("Devices cache MISS");
+    const result = await pool.query(
+        `
+        SELECT *
+        FROM devices
+        ORDER BY id
+        `
+    );
+    const devices = result.rows;
+    // STORE RESULT IN REDIS
+    await redisClient.set(
+        cacheKey,
+        JSON.stringify(devices),
+        {
+            EX: 60
+        }
+    );
+    return devices;
 }
 
 async function getDeviceById(id) {
@@ -15,6 +42,7 @@ async function createNewDevice(device){
         "INSERT INTO devices(hostname, ip_address, status) VALUES($1, $2, $3) RETURNING *",
         [device.hostname, device.ip_address, device.status]
     );
+    await redisClient.del("devices:all");
     return result.rows[0];
 }
 
@@ -40,13 +68,24 @@ async function updateDevice(id, update) {
             id
         ]
     );
+    await redisClient.del("devices:all");
 
     return result.rows[0];
 }
 
-async function deleteDevice(id){
-    const result = await pool.query("DELETE FROM devices WHERE id = $1", [id]);
-    return result.rowCount > 0;
+async function deleteDevice(id) {
+    const result = await pool.query(
+        "DELETE FROM devices WHERE id = $1",
+        [id]
+    );
+
+    if (result.rowCount === 0) {
+        return false;
+    }
+
+    await redisClient.del("devices:all");
+
+    return true;
 }
 
 module.exports = {
