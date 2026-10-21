@@ -123,3 +123,20 @@ describe("PUT /api/devices/:id", () => {
 });
 
 
+
+describe("DELETE /api/devices/:id", () => {
+    test("deletes a device successfully", async () => {
+        deviceService.deleteDevice.mockResolvedValue(true);
+
+        const response = await request(app)
+            .delete("/api/devices/1");
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({
+            message: "Device deleted",
+        });
+        expect(deviceService.deleteDevice).toHaveBeenCalledWith(1);
+    });
+});
+
+
