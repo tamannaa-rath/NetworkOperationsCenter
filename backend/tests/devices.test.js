@@ -91,3 +91,35 @@ describe("POST /api/devices", () => {
     });
 });
 
+
+
+describe("PUT /api/devices/:id", () => {
+    test("updates a device successfully", async () => {
+        const updatedDevice = {
+            id: 1,
+            hostname: "router-updated",
+            ip_address: "192.168.1.10",
+            status: "active",
+        };
+
+        deviceService.updateDevice.mockResolvedValue(updatedDevice);
+
+        const response = await request(app)
+            .put("/api/devices/1")
+            .send({
+                hostname: "router-updated",
+                ip_address: "192.168.1.10",
+                status: "active",
+            });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(updatedDevice);
+        expect(deviceService.updateDevice).toHaveBeenCalledWith(1, {
+            hostname: "router-updated",
+            ip_address: "192.168.1.10",
+            status: "active",
+        });
+    });
+});
+
+
