@@ -64,3 +64,30 @@ describe("GET /api/devices/:id", () => {
         expect(deviceService.getDeviceById).toHaveBeenCalledWith(1);
     });
 });
+
+
+describe("POST /api/devices", () => {
+    test("creates a device successfully", async () => {
+                const newDevice = {
+            id: 3,
+            hostname: "server-01",
+            ip_address: "192.168.1.3",
+            status: "active",
+        };
+
+        deviceService.createNewDevice.mockResolvedValue(newDevice);
+
+        const response = await request(app)
+            .post("/api/devices")
+            .send({
+                hostname: "server-01",
+                ip_address: "192.168.1.3",
+                status: "active",
+            });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(newDevice);
+        expect(deviceService.createNewDevice).toHaveBeenCalledTimes(1);
+    });
+});
+
