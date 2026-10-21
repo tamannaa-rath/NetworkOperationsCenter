@@ -1,0 +1,66 @@
+const request = require("supertest");
+
+// Replace the device service with a mock.
+jest.mock("../src/services/device.service", () => ({
+    getAllDevices: jest.fn(),
+    getDeviceById: jest.fn(),
+    createNewDevice: jest.fn(),
+    updateDevice: jest.fn(),
+    deleteDevice: jest.fn(),
+}));
+
+const deviceService = require("../src/services/device.service");
+const app = require("../src/app");
+
+describe("GET /api/devices", () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test("returns all devices successfully", async () => {
+        const mockDevices = [
+            {
+                id: 1,
+                hostname: "router-01",
+                ip_address: "192.168.1.1",
+                status: "ONLINE",
+            },
+            {
+                id: 2,
+                hostname: "switch-01",
+                ip_address: "192.168.1.2",
+                status: "OFFLINE",
+            },
+        ];
+
+        deviceService.getAllDevices.mockResolvedValue(mockDevices);
+
+        const response = await request(app)
+            .get("/api/devices");
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(mockDevices);
+        expect(deviceService.getAllDevices).toHaveBeenCalledTimes(1);
+    });
+});
+
+
+describe("GET /api/devices/:id", () => {
+    test("returns a device successfully", async () => {
+        const mockDevice = {
+            id: 1,
+            hostname: "router-01",
+            ip_address: "192.168.1.1",
+            status: "ONLINE",
+        };
+
+        deviceService.getDeviceById.mockResolvedValue(mockDevice);
+
+        const response = await request(app)
+            .get("/api/devices/1");
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(mockDevice);
+        expect(deviceService.getDeviceById).toHaveBeenCalledWith(1);
+    });
+});
